@@ -46,6 +46,7 @@ namespace TwitchPlaysBot
         private void LoadSettings()
         {
             Username.Text = Properties.Settings.Default.Username;
+            OAuthToken.Password = Properties.Settings.Default.PasswordPlain;
             Channel.Text = Properties.Settings.Default.Channel;
         }
 
@@ -162,6 +163,7 @@ namespace TwitchPlaysBot
                 // save IRC configuration
                 Properties.Settings.Default.Username = Username.Text;
                 Properties.Settings.Default.Password = OAuthToken.SecurePassword;
+                Properties.Settings.Default.PasswordPlain = OAuthToken.Password;
                 Properties.Settings.Default.Channel = (Channel.Text.StartsWith("#") ? Channel.Text : "#" + Channel.Text);
                 Properties.Settings.Default.Save();
 
