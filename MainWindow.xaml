@@ -2,58 +2,65 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="TwitchPlaysBot - Client" Height="350" Width="525">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <!--<Menu>
-            <MenuItem Header="Test"/>
-        </Menu>-->
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Padding="0,2">
+            <MenuItem Header="Edit">
+                <MenuItem Header="Control Mapping" Click="MenuItem_ControlBinding_Click"/>
+            </MenuItem>
+        </Menu>
+        <Grid DockPanel.Dock="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <Label Content="Username" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0" />
-        <TextBox x:Name="Username" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0"/>
+            <Label Content="Username" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0" />
+            <TextBox x:Name="Username" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0"/>
 
-        <Label Content="OAuth Token" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0"/>
-        <PasswordBox x:Name="OAuthToken" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0"/>
-        <TextBlock x:Name="OAuthLink" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0">
+            <Label Content="OAuth Token" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0"/>
+            <PasswordBox x:Name="OAuthToken" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0"/>
+            <TextBlock x:Name="OAuthLink" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0">
             <Hyperlink NavigateUri="http://www.twitchapps.com/tmi/" RequestNavigate="Hyperlink_RequestNavigate">
                 Generate a token
             </Hyperlink>
-        </TextBlock>
+            </TextBlock>
 
-        <Label Content="Channel" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0"/>
-        <TextBox x:Name="Channel" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0" Text="#"/>
+            <Label Content="Channel" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0"/>
+            <TextBox x:Name="Channel" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0" Text="#"/>
 
-        <Button x:Name="btnConnect" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0" Padding="11,4" Click="btnConnect_Click" Content="Connect to Twitch"/>
+            <Button x:Name="btnConnect" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0" Padding="11,4" Click="btnConnect_Click" Content="Connect to Twitch"/>
 
-        <Label Content="Window" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0"/>
-        <ComboBox x:Name="ProcessList" Grid.Column="3" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,11,0" DisplayMemberPath="Value" SelectedValuePath="Key" ItemsSource="{Binding Path=AvailableProcesses, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="ProcessList_SelectionChanged"/>
-        <Button x:Name="btnProcessListRefresh" Content="Refresh" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="11,4,11,0" Padding="11,4" Click="btnProcessListRefresh_Click"/>
+            <Label Content="Window" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0"/>
+            <ComboBox x:Name="ProcessList" Grid.Column="3" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,11,0" DisplayMemberPath="Value" SelectedValuePath="Key" ItemsSource="{Binding Path=AvailableProcesses, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="ProcessList_SelectionChanged"/>
+            <Button x:Name="btnProcessListRefresh" Content="Refresh" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="11,4,11,0" Padding="11,4" Click="btnProcessListRefresh_Click"/>
 
-        <Button x:Name="btnCreateOverlay" Grid.Column="3" Grid.Row="4" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="11,4,11,0" Padding="11,4" Content="Create Overlay" Click="btnCreateOverlay_Click" IsEnabled="False"/>
+            <Label Content="Current Binding:" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,0,0,0"/>
+            <Label x:Name="lblCurrentBinding" Content="Default" Grid.Column="3" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,0,11,0"/>
 
-        <Label Content="IRC Console" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0"/>
-        <TextBox x:Name="ConsoleOutput" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="11,4,11,0" TextWrapping="Wrap" IsReadOnly="True" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto"/>
-        <Grid Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="7" HorizontalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBox x:Name="ConsoleInput" Grid.Column="0" Margin="11,4,0,4" HorizontalAlignment="Stretch" KeyDown="ConsoleInput_KeyDown"/>
-            <Button x:Name="btnConsoleSend" Grid.Column="1" Margin="4,4,11,4" Padding="11,4" Content="Send" Click="btnConsoleSend_Click" IsEnabled="False"/>
+            <Button x:Name="btnCreateOverlay" Grid.Column="3" Grid.Row="4" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="11,4,11,0" Padding="11,4" Content="Create Overlay" Click="btnCreateOverlay_Click" IsEnabled="False"/>
+
+            <Label Content="IRC Console" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0"/>
+            <TextBox x:Name="ConsoleOutput" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="11,4,11,0" TextWrapping="Wrap" IsReadOnly="True" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto"/>
+            <Grid Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="7" HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="ConsoleInput" Grid.Column="0" Margin="11,4,0,4" HorizontalAlignment="Stretch" KeyDown="ConsoleInput_KeyDown"/>
+                <Button x:Name="btnConsoleSend" Grid.Column="1" Margin="4,4,11,4" Padding="11,4" Content="Send" Click="btnConsoleSend_Click" IsEnabled="False"/>
+            </Grid>
         </Grid>
-    </Grid>
+    </DockPanel>
 </Window>

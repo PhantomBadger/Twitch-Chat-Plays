@@ -120,10 +120,10 @@ namespace TwitchPlaysBot
         {
             message = message.ToLower();
 
-            Keys[] keys;
+            List<Keys> keys;
             if (Joypad.CommandKeyPairs.TryGetValue(message, out keys))
             {
-                keyPressQueue.Enqueue(keys);
+                keyPressQueue.Enqueue(keys.ToArray());
                 PrintToActionLog(String.Format("{0}: {1}", username, message));
             }
         }

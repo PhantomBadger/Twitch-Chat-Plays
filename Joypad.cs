@@ -12,6 +12,27 @@ namespace TwitchPlaysBot
     [Serializable]
     public class Joypad
     {
+        public static Joypad Default
+        {
+            get
+            {
+                return new Joypad(
+                    new Dictionary<string, List<Key>>()
+                    {
+                        { "up", new List<Key> { Key.Up } },
+                        { "down", new List<Key> { Key.Down } },
+                        { "left", new List<Key> { Key.Left } },
+                        { "right", new List<Key> { Key.Right } },
+                        { "a", new List<Key> { Key.X } },
+                        { "b", new List<Key> { Key.Z } },
+                        { "select", new List<Key> { Key.Back } },
+                        { "start", new List<Key> { Key.Enter } },
+                        { "!multi", new List<Key> { Key.Down, Key.Down, Key.Left, Key.Left } }
+                    }
+                );
+            }
+        }
+
         /// <summary>
         /// The name of the joypad.
         /// </summary>
@@ -19,7 +40,7 @@ namespace TwitchPlaysBot
         /// <summary>
         /// A collection of commands and their associated keyboard key combinations.
         /// </summary>
-        public Dictionary<string, Keys[]> CommandKeyPairs { get; set; }
+        public Dictionary<string, List<Keys>> CommandKeyPairs { get; set; }
         /// <summary>
         /// The delay in milliseconds between key presses when pressing an array of keys.
         /// </summary>
@@ -38,7 +59,7 @@ namespace TwitchPlaysBot
             // default to a delay of half a second
             Delay = 500;
             // initialise with a case-insensitive comparer to ensure commands get matched
-            CommandKeyPairs = new Dictionary<string, Keys[]>(StringComparer.OrdinalIgnoreCase);
+            CommandKeyPairs = new Dictionary<string, List<Keys>>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -46,9 +67,9 @@ namespace TwitchPlaysBot
         /// Uses the WinForms key enumeration type.
         /// </summary>
         /// <param name="commandKeys">Maps string commands to an array of WinForms key enumerations.</param>
-        public Joypad(Dictionary<string, Keys[]> commandKeys) : this()
+        public Joypad(Dictionary<string, List<Keys>> commandKeys) : this()
         {
-            foreach (KeyValuePair<string, Keys[]> command in commandKeys)
+            foreach (KeyValuePair<string, List<Keys>> command in commandKeys)
             {
                 CommandKeyPairs.Add(command.Key, command.Value);
             }
@@ -59,15 +80,15 @@ namespace TwitchPlaysBot
         /// converting the WPF key enumeration type to WinForms.
         /// </summary>
         /// <param name="commandKeys">Maps string commands to an array of WPF key enumerations.</param>
-        public Joypad(Dictionary<string, Key[]> commandKeys) : this()
+        public Joypad(Dictionary<string, List<Key>> commandKeys) : this()
         {
-            foreach (KeyValuePair<string, Key[]> command in commandKeys)
+            foreach (KeyValuePair<string, List<Key>> command in commandKeys)
             {
-                Keys[] keys = new Keys[command.Value.Length];
+                List<Keys> keys = new List<Keys>(command.Value.Count);
 
-                for (int i = 0; i < keys.Length; i++)
+                for (int i = 0; i < command.Value.Count; i++)
                 {
-                    keys[i] = (Keys)KeyInterop.VirtualKeyFromKey(command.Value[i]);
+                    keys.Add((Keys)KeyInterop.VirtualKeyFromKey(command.Value[i]));
                 }
 
                 CommandKeyPairs.Add(command.Key, keys);
@@ -94,7 +115,7 @@ namespace TwitchPlaysBot
                     }
                 }
 
-                CommandKeyPairs.Add(command.Key, keys.ToArray());
+                CommandKeyPairs.Add(command.Key, keys);
             }
         }
 

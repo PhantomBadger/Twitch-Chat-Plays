@@ -51,6 +51,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -73,6 +76,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="ControlBinding\ControlBinding.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ControlBinding\ControlBindingEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -81,6 +92,15 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ControlBinding\ControlBinding.xaml.cs">
+      <DependentUpon>ControlBinding.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ControlBinding\ControlBindingEditor.xaml.cs">
+      <DependentUpon>ControlBindingEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ControlBinding\ControlBindingEditorViewModel.cs" />
+    <Compile Include="ControlBinding\ControlBindingViewModel.cs" />
+    <Compile Include="DelegateCommand.cs" />
     <Compile Include="IRC.cs" />
     <Compile Include="Joypad.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -120,6 +140,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

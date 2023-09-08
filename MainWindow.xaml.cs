@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TwitchPlaysBot.ControlBinding;
 
 namespace TwitchPlaysBot
 {
@@ -27,7 +28,6 @@ namespace TwitchPlaysBot
     {
         private IRC irc;
         private OverlayWindow overlay;
-        private List<Joypad> joypads;
         private Joypad currentJoypad;
         private const int ConsoleMaxLines = 50;
 
@@ -51,26 +51,7 @@ namespace TwitchPlaysBot
 
         private void InitJoypads()
         {
-            joypads = new List<Joypad>();
-
-            joypads.Add(
-                new Joypad(
-                    new Dictionary<string, Key[]>() 
-                    {
-                        { "up", new Key[] { Key.Up } },
-                        { "down", new Key[] { Key.Down } },
-                        { "left", new Key[] { Key.Left } },
-                        { "right", new Key[] { Key.Right } },
-                        { "a", new Key[] { Key.X } },
-                        { "b", new Key[] { Key.Z } },
-                        { "select", new Key[] { Key.Back } },
-                        { "start", new Key[] { Key.Enter } },
-                        { "!multi", new Key[] { Key.Down, Key.Down, Key.Left, Key.Left } }
-                    }
-                ) { Name = "Default" }
-            );
-
-            currentJoypad = joypads.First();
+            currentJoypad = Joypad.Default;
         }
 
         private void InitIRC()
@@ -252,6 +233,43 @@ namespace TwitchPlaysBot
         private void ProcessList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             btnCreateOverlay.IsEnabled = true;
+        }
+
+        private void MenuItem_ControlBinding_Click(object sender, RoutedEventArgs e)
+        {
+            var controlBindingEditorViewModel = new ControlBindingEditorViewModel();
+            var controlBindingEditor = new ControlBindingEditor();
+            controlBindingEditor.DataContext = controlBindingEditorViewModel;
+            controlBindingEditorViewModel.ParseFromJoypad(currentJoypad);
+            controlBindingEditorViewModel.CurrentBindingName = lblCurrentBinding.Content.ToString();
+
+            if (controlBindingEditor.ShowDialog() == true)
+            {
+                ControlBindingViewModel[] controlBindings = controlBindingEditorViewModel.ControlBindings.ToArray();
+
+                // Build a dictionary from the control bindings
+                var bindingDict = new Dictionary<string, List<Key>>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < controlBindings.Length; i++)
+                {
+                    string message = controlBindings[i].MessageContent;
+                    Key key = controlBindings[i].TargetKey;
+
+                    if (bindingDict.ContainsKey(message))
+                    {
+                        bindingDict[message].Add(key);
+                    }
+                    else
+                    {
+                        bindingDict[message] = new List<Key>() { key };
+                    }
+                }
+
+                // Assign the joypad
+                Joypad newJoypad = new Joypad(bindingDict);
+                currentJoypad = newJoypad;
+
+                lblCurrentBinding.Content = controlBindingEditorViewModel.CurrentBindingName;
+            }
         }
     }
 }
