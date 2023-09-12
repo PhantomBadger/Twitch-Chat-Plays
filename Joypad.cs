@@ -29,7 +29,10 @@ namespace TwitchPlaysBot
                         { "start", new List<Key> { Key.Enter } },
                         { "!multi", new List<Key> { Key.Down, Key.Down, Key.Left, Key.Left } }
                     }
-                );
+                )
+                {
+                    Name = "Default"
+                };
             }
         }
 

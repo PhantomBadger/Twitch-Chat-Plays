@@ -22,6 +22,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
@@ -41,9 +42,13 @@
             <TextBox x:Name="Channel" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0" Text="#"/>
 
             <Button x:Name="btnConnect" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0" Padding="11,4" Click="btnConnect_Click" Content="Connect to Twitch"/>
+            <Button x:Name="btnStart" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0" Padding="11,4" Click="btnStart_Click" Content="Start Playing"/>
 
+            <Label x:Name="lblCurrentProcessLabel" Content="Current Process:" Grid.Column="2" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,0,0,0"/>
+            <Label x:Name="lblCurrentProcess" Content="Unknown" Grid.Column="3" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,0,11,0"/>
+            
             <Label Content="Window" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,0,0"/>
-            <ComboBox x:Name="ProcessList" Grid.Column="3" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,11,0" DisplayMemberPath="Value" SelectedValuePath="Key" ItemsSource="{Binding Path=AvailableProcesses, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="ProcessList_SelectionChanged"/>
+            <ComboBox x:Name="ProcessList" Grid.Column="3" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,4,11,0" DisplayMemberPath="Value" SelectedValuePath="Key" ItemsSource="{Binding Path=AvailableProcesses, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectionChanged="ProcessList_SelectionChanged"/>
             <Button x:Name="btnProcessListRefresh" Content="Refresh" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="11,4,11,0" Padding="11,4" Click="btnProcessListRefresh_Click"/>
 
             <Label Content="Current Binding:" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="11,0,0,0"/>
@@ -51,9 +56,9 @@
 
             <Button x:Name="btnCreateOverlay" Grid.Column="3" Grid.Row="4" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="11,4,11,0" Padding="11,4" Content="Create Overlay" Click="btnCreateOverlay_Click" IsEnabled="False"/>
 
-            <Label Content="IRC Console" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="5" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0"/>
-            <TextBox x:Name="ConsoleOutput" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="11,4,11,0" TextWrapping="Wrap" IsReadOnly="True" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto"/>
-            <Grid Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="7" HorizontalAlignment="Stretch">
+            <Label Content="IRC Console" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="6" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="11,4,0,0"/>
+            <TextBox x:Name="ConsoleOutput" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="11,4,11,0" TextWrapping="Wrap" IsReadOnly="True" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto"/>
+            <Grid Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="8" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>

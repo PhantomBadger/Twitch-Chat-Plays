@@ -102,6 +102,8 @@ namespace TwitchPlaysBot.ControlBinding
         }
         private ControlBindingViewModel selectedControlBinding;
 
+        private string lastFileLoaded;
+
         /// <summary>
         /// Ctor for creating a <see cref="ControlBindingEditorViewModel"/>
         /// </summary>
@@ -182,6 +184,9 @@ namespace TwitchPlaysBot.ControlBinding
         /// </summary>
         private void CloseAndApplyBindings(Window window)
         {
+            Properties.Settings.Default.LastBindingFile = lastFileLoaded;
+            Properties.Settings.Default.Save();
+
             window.DialogResult = true;
             window.Close();
         }
@@ -232,6 +237,7 @@ namespace TwitchPlaysBot.ControlBinding
                             ControlBindings = new ObservableCollection<ControlBindingViewModel>(controlBindings);
 
                             CurrentBindingName = Path.GetFileName(openFileDialog.FileName);
+                            lastFileLoaded = openFileDialog.FileName;
                         }
                     }
                 }
@@ -274,6 +280,8 @@ namespace TwitchPlaysBot.ControlBinding
                             {
                                 streamWriter.Write(jsonOutput);
                             }
+
+                            lastFileLoaded = saveFileDialog.FileName;
                         }
                     }
                 }
@@ -334,6 +342,58 @@ namespace TwitchPlaysBot.ControlBinding
         public void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public static Joypad ParseFromFile(string filePath)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+                {
+                    return null;
+                }
+
+                string jsonContent = File.ReadAllText(filePath);
+
+                // Deserialize the Json into the current bindings
+                ControlBindingViewModel[] controlBindings = JsonConvert.DeserializeObject<ControlBindingViewModel[]>(jsonContent);
+
+                return ParseFromControlBindings(Path.GetFileName(filePath), controlBindings);
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.ToString());
+                return null;
+            }
+        }
+
+        public static Joypad ParseFromControlBindings(string name, ControlBindingViewModel[] controlBindings)
+        {
+            if (controlBindings == null)
+            {
+                return null;
+            }
+
+            var bindingDict = new Dictionary<string, List<Key>>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < controlBindings.Length; i++)
+            {
+                string message = controlBindings[i].MessageContent;
+                Key key = controlBindings[i].TargetKey;
+
+                if (bindingDict.ContainsKey(message))
+                {
+                    bindingDict[message].Add(key);
+                }
+                else
+                {
+                    bindingDict[message] = new List<Key>() { key };
+                }
+            }
+
+            // Assign the joypad
+            Joypad newJoypad = new Joypad(bindingDict);
+            newJoypad.Name = name;
+            return newJoypad;
         }
     }
 }

@@ -25,23 +25,51 @@ namespace TwitchPlaysBot
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private IRC irc;
+        private VirtualKeyPresser virtualKeyPresser;
         private OverlayWindow.OverlayWindow overlay;
         private Joypad currentJoypad;
+
+        private bool processSelected;
+        private bool twitchConnected;
+        private bool chatPlaying;
+
         private const int ConsoleMaxLines = 50;
 
-        public BindingList<KeyValuePair<int, string>> AvailableProcesses { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public BindingList<KeyValuePair<int, string>> AvailableProcesses 
+        { 
+            get
+            {
+                return availableProcesses;
+            }
+            set
+            {
+                if (availableProcesses != value)
+                {
+                    availableProcesses = value;
+                    RaisePropertyChanged(nameof(AvailableProcesses));
+                }
+            }
+        }
+        private BindingList<KeyValuePair<int, string>> availableProcesses;
 
         public MainWindow()
         {
             this.DataContext = this;
-            PopulateProcessList();
-            InitJoypads();
             InitializeComponent();
-            InitIRC();
+            PopulateProcessList();
             LoadSettings();
+            InitIRC();
+
+            processSelected = false;
+            twitchConnected = false;
+            chatPlaying = false;
+            UpdateStartPlayingEnabledState();
+            UpdateCreateOverlayEnabledState();
         }
 
         private void LoadSettings()
@@ -49,11 +77,21 @@ namespace TwitchPlaysBot
             Username.Text = Properties.Settings.Default.Username;
             OAuthToken.Password = Properties.Settings.Default.PasswordPlain;
             Channel.Text = Properties.Settings.Default.Channel;
+
+            InitJoypads(Properties.Settings.Default.LastBindingFile);
         }
 
-        private void InitJoypads()
+        private void InitJoypads(string lastBindingFile)
         {
-            currentJoypad = Joypad.Default;
+            if (string.IsNullOrWhiteSpace(lastBindingFile))
+            {
+                currentJoypad = Joypad.Default;
+            }
+            else
+            {
+                currentJoypad = ControlBindingEditorViewModel.ParseFromFile(lastBindingFile) ?? Joypad.Default;
+                lblCurrentBinding.Content = currentJoypad.Name;
+            }
         }
 
         private void InitIRC()
@@ -66,7 +104,6 @@ namespace TwitchPlaysBot
 
         private void InitOverlay()
         {
-            var virtualKeyPresser = new VirtualKeyPresser(currentJoypad, irc, (int)ProcessList.SelectedValue);
             var overlayWindowViewModel = new OverlayWindowViewModel(Application.Current.Dispatcher, virtualKeyPresser);
 
             overlay = new OverlayWindow.OverlayWindow(overlayWindowViewModel);
@@ -144,6 +181,10 @@ namespace TwitchPlaysBot
         private void btnProcessListRefresh_Click(object sender, RoutedEventArgs e)
         {
             PopulateProcessList();
+            processSelected = false;
+
+            UpdateStartPlayingEnabledState();
+            UpdateCreateOverlayEnabledState();
         }
 
         protected override void OnClosed(EventArgs e)
@@ -165,6 +206,14 @@ namespace TwitchPlaysBot
             if (irc.IsConnected)
             {
                 irc.Disconnect();
+
+                if (virtualKeyPresser != null)
+                {
+                    virtualKeyPresser.Dispose();
+                    virtualKeyPresser = null;
+
+                    VirtualKeyPresserStatusUpdate();
+                }
             }
             else
             {
@@ -181,16 +230,134 @@ namespace TwitchPlaysBot
                 // connect to the IRC server asynchronously
                 Task.Factory.StartNew(() => { irc.Connect(); });
             }
+        }
+        private void btnStart_Click(object sender, RoutedEventArgs e)
+        {
+            if (virtualKeyPresser != null)
+            {
+                virtualKeyPresser.Dispose();
+                virtualKeyPresser = null;
 
+                VirtualKeyPresserStatusUpdate();
+            }
+            else
+            {
+                if (ProcessList.SelectedValue != null)
+                {
+                    virtualKeyPresser = new VirtualKeyPresser(currentJoypad, irc, (int)ProcessList.SelectedValue);
+
+                    VirtualKeyPresserStatusUpdate();
+                }
+            }
+        }
+
+        private void btnCreateOverlay_Click(object sender, RoutedEventArgs e)
+        {
+            if (overlay != null)
+            {
+                CloseOverlay();
+            }
+
+            if (virtualKeyPresser == null)
+            {
+                return;
+            }
+
+            if (ProcessList.SelectedValue != null)
+            {
+                try
+                {
+                    InitOverlay();
+                    overlay.Show();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        private void ProcessList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            processSelected = true;
+
+            UpdateStartPlayingEnabledState();
+            UpdateCreateOverlayEnabledState();
+        }
+
+        private void VirtualKeyPresserStatusUpdate()
+        {
+            if (virtualKeyPresser != null)
+            {
+                chatPlaying = true;
+
+                btnStart.Content = "Stop Playing";
+                UpdateStartPlayingEnabledState();
+                UpdateCreateOverlayEnabledState();
+
+                lblCurrentProcessLabel.Visibility = Visibility.Visible;
+                lblCurrentProcess.Visibility = Visibility.Visible;
+                lblCurrentProcess.Content = virtualKeyPresser.ProcessName;
+            }
+            else
+            {
+                chatPlaying = false;
+
+                btnStart.Content = "Start Playing";
+                UpdateStartPlayingEnabledState();
+                UpdateCreateOverlayEnabledState();
+
+                lblCurrentProcessLabel.Visibility = Visibility.Collapsed;
+                lblCurrentProcess.Visibility = Visibility.Collapsed;
+                lblCurrentProcess.Content = "Unknown";
+            }
+        }
+
+        private void UpdateStartPlayingEnabledState()
+        {
+            bool shouldEnable = (chatPlaying && twitchConnected) || (processSelected && twitchConnected);
+
+            if (shouldEnable)
+            {
+                btnStart.IsEnabled = true;
+            }
+            else
+            {
+                btnStart.IsEnabled = false;
+                lblCurrentProcessLabel.Visibility = Visibility.Collapsed;
+                lblCurrentProcess.Visibility = Visibility.Collapsed;
+                lblCurrentProcess.Content = "Unknown";
+            }
+        }
+
+        private void UpdateCreateOverlayEnabledState()
+        {
+            bool shouldEnable = chatPlaying && twitchConnected;
+
+            if (shouldEnable)
+            {
+                btnCreateOverlay.IsEnabled = true;
+            }
+            else
+            {
+                btnCreateOverlay.IsEnabled = false;
+            }
         }
 
         private void ConnectionStatusUpdate(bool isConnected, bool hasJoinedChannel)
         {
-            Dispatcher.BeginInvoke(new Action(() => {
+            Dispatcher.BeginInvoke(new Action(() => 
+            {
+                twitchConnected = isConnected;
+
                 // change the connect button text
                 btnConnect.Content = isConnected ? "Disconnect" : "Connect to Twitch";
+
                 // enable or disable the console send button
                 btnConsoleSend.IsEnabled = isConnected && hasJoinedChannel;
+
+                UpdateStartPlayingEnabledState();
+                UpdateCreateOverlayEnabledState();
             }));
         }
 
@@ -218,32 +385,6 @@ namespace TwitchPlaysBot
             }
         }
 
-        private void btnCreateOverlay_Click(object sender, RoutedEventArgs e)
-        {
-            if (overlay != null)
-            {
-                CloseOverlay();
-            }
-
-            if (ProcessList.SelectedValue != null)
-            {
-                try
-                {
-                    InitOverlay();
-                    overlay.Show();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
-                }
-            }
-        }
-
-        private void ProcessList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            btnCreateOverlay.IsEnabled = true;
-        }
-
         private void MenuItem_ControlBinding_Click(object sender, RoutedEventArgs e)
         {
             var controlBindingEditorViewModel = new ControlBindingEditorViewModel();
@@ -256,29 +397,17 @@ namespace TwitchPlaysBot
             {
                 ControlBindingViewModel[] controlBindings = controlBindingEditorViewModel.ControlBindings.ToArray();
 
-                // Build a dictionary from the control bindings
-                var bindingDict = new Dictionary<string, List<Key>>(StringComparer.OrdinalIgnoreCase);
-                for (int i = 0; i < controlBindings.Length; i++)
-                {
-                    string message = controlBindings[i].MessageContent;
-                    Key key = controlBindings[i].TargetKey;
-
-                    if (bindingDict.ContainsKey(message))
-                    {
-                        bindingDict[message].Add(key);
-                    }
-                    else
-                    {
-                        bindingDict[message] = new List<Key>() { key };
-                    }
-                }
-
-                // Assign the joypad
-                Joypad newJoypad = new Joypad(bindingDict);
-                currentJoypad = newJoypad;
-
-                lblCurrentBinding.Content = controlBindingEditorViewModel.CurrentBindingName;
+                currentJoypad = ControlBindingEditorViewModel.ParseFromControlBindings(controlBindingEditorViewModel.CurrentBindingName, controlBindings) ?? Joypad.Default;
+                lblCurrentBinding.Content = currentJoypad.Name;
             }
+        }
+
+        /// <summary>
+        /// Invokes the <see cref="PropertyChanged"/> event
+        /// </summary>
+        public void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

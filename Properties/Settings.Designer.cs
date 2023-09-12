@@ -69,5 +69,17 @@ namespace TwitchPlaysBot.Properties {
                 this["PasswordPlain"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastBindingFile {
+            get {
+                return ((string)(this["LastBindingFile"]));
+            }
+            set {
+                this["LastBindingFile"] = value;
+            }
+        }
     }
 }
