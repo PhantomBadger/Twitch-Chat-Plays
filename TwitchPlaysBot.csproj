@@ -76,6 +76,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="OverlayWindow\OverlayWindowViewModel.cs" />
+    <Compile Include="VirtualKeyPresser.cs" />
+    <Compile Include="Windows\ExternalWrappers.cs" />
+    <Compile Include="Windows\Rect.cs" />
+    <Compile Include="Windows\WindowShowStyle.cs" />
     <Page Include="ControlBinding\ControlBinding.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -107,17 +112,17 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="OverlayStyle.xaml">
+    <Page Include="OverlayWindow\OverlayStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="OverlayWindow.xaml">
+    <Page Include="OverlayWindow\OverlayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OverlayWindow.xaml.cs">
+    <Compile Include="OverlayWindow\OverlayWindow.xaml.cs">
       <DependentUpon>OverlayWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">

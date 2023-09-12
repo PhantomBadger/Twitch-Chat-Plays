@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using TwitchPlaysBot.ControlBinding;
+using TwitchPlaysBot.OverlayWindow;
 
 namespace TwitchPlaysBot
 {
@@ -27,7 +28,7 @@ namespace TwitchPlaysBot
     public partial class MainWindow : Window
     {
         private IRC irc;
-        private OverlayWindow overlay;
+        private OverlayWindow.OverlayWindow overlay;
         private Joypad currentJoypad;
         private const int ConsoleMaxLines = 50;
 
@@ -65,13 +66,23 @@ namespace TwitchPlaysBot
 
         private void InitOverlay()
         {
-            overlay = new OverlayWindow() { Joypad = currentJoypad };
-            irc.eventRecievingMessage += new MessageReceived(overlay.OnMessagedRecieved);
+            var virtualKeyPresser = new VirtualKeyPresser(currentJoypad, irc, (int)ProcessList.SelectedValue);
+            var overlayWindowViewModel = new OverlayWindowViewModel(Application.Current.Dispatcher, virtualKeyPresser);
+
+            overlay = new OverlayWindow.OverlayWindow(overlayWindowViewModel);
+            virtualKeyPresser.OnWatchedProcessClosed += CloseOverlay;
+
             overlay.Closing += delegate
             {
-                irc.eventRecievingMessage -= new MessageReceived(overlay.OnMessagedRecieved);
                 overlay = null;
+                virtualKeyPresser.OnWatchedProcessClosed -= CloseOverlay;
+                virtualKeyPresser.Dispose();
             };
+        }
+
+        private void CloseOverlay()
+        {
+            overlay?.Close();
         }
 
         private void PopulateProcessList()
@@ -211,18 +222,14 @@ namespace TwitchPlaysBot
         {
             if (overlay != null)
             {
-                overlay.Close();
+                CloseOverlay();
             }
-
-            InitOverlay();
 
             if (ProcessList.SelectedValue != null)
             {
-                overlay.ProcessId = (int)ProcessList.SelectedValue;
-
                 try
                 {
-                    overlay.Hook();
+                    InitOverlay();
                     overlay.Show();
                 }
                 catch (Exception ex)

@@ -14,7 +14,7 @@ namespace TwitchPlaysBot
     public delegate void DataReceived(string data);
     public delegate void MessageReceived(string username, string message);
 
-    class IRC
+    public class IRC
     {
         private string server;
         private int port;
