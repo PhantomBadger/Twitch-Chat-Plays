@@ -1,6 +1,6 @@
-TwitchPlaysBot
+Twitch Chat Plays
 ==============
-Built ontop of original implementation by [lushc](https://github.com/lushc/TwitchPlaysBot)
+Built on top of original implementation by [lushc](https://github.com/lushc/TwitchPlaysBot)
 
 A desktop application allowing your Twitch Chat to control any app on your computer!
 
